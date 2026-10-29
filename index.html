@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio Mental — LógicaX</title>
+  <meta name="description" content="Desafie seu raciocínio lógico, sequências, padrões e atenção em desafios interativos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Cabeçalho com status geral -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand">
+          <span class="brand-icon">🧠</span>
+          <span class="brand-name">Lógica<strong>X</strong></span>
+        </div>
+        <div class="header-badges">
+          <span id="levelBadge" class="level-badge">NÍVEL 1</span>
+          <span id="scoreText" class="score-badge">⭐ 0 pontos</span>
+        </div>
+      </div>
+
+      <h1 id="challengeTitle" class="challenge-title">Vamos começar?</h1>
+
+      <!-- Barra de progresso -->
+      <div class="progress-section">
+        <div class="progress-info">
+          <span id="progressText" class="progress-text">Desafio 1 de 8</span>
+        </div>
+        <div 
+          id="progressBar" 
+          class="progress-track" 
+          role="progressbar" 
+          aria-label="Progresso do jogo" 
+          aria-valuemin="0" 
+          aria-valuemax="8" 
+          aria-valuenow="0"
+        >
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="app-main">
+      <!-- 1. Tela Inicial -->
+      <section id="startScreen" class="screen start-screen">
+        <div class="hero-card">
+          <div class="hero-icon">✨</div>
+          <h2 class="hero-title">Treine seu cérebro</h2>
+          <p class="hero-description">
+            Teste sua capacidade de raciocínio lógico, sequências matemáticas, 
+            percepção de padrões e atenção com uma série de enigmas inteligentes.
+          </p>
+
+          <div class="rules-list">
+            <div class="rule-item">
+              <span class="rule-icon">🎯</span>
+              <div class="rule-text">
+                <strong><span id="totalQuestions">8</span> Desafios</strong>
+                <span>Perguntas de múltipla escolha com dificuldade progressiva.</span>
+              </div>
+            </div>
+            <div class="rule-item">
+              <span class="rule-icon">⭐</span>
+              <div class="rule-text">
+                <strong>Pontuação dinâmica</strong>
+                <span>+10 pontos por acerto direto, ou +5 pontos se usar dica.</span>
+              </div>
+            </div>
+            <div class="rule-item">
+              <span class="rule-icon">💡</span>
+              <div class="rule-text">
+                <strong>Dicas inteligentes</strong>
+                <span>Em caso de dúvida, peça uma dica antes de responder.</span>
+              </div>
+            </div>
+          </div>
+
+          <button id="startButton" type="button" class="btn btn-primary btn-large">
+            <span>Iniciar Desafio</span>
+            <span class="btn-arrow" aria-hidden="true">→</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. Tela de Perguntas -->
+      <section id="questionScreen" class="screen question-screen" hidden>
+        <div class="question-card">
+          <!-- Cabeçalho da Pergunta -->
+          <div class="question-header">
+            <span id="categoryTag" class="category-tag">CATEGORIA</span>
+            <span id="questionNumber" class="question-number">01 / 08</span>
+          </div>
+
+          <!-- Texto do Desafio -->
+          <h2 id="questionText" class="question-text">Pergunta...</h2>
+
+          <!-- Enigma Visual (Sequência de números, emojis, etc.) -->
+          <div id="visualPuzzle" class="visual-puzzle" hidden></div>
+
+          <!-- Grade de Respostas -->
+          <div id="answersGrid" class="answers-grid" role="group" aria-label="Opções de resposta">
+            <!-- Botões gerados via JS -->
+          </div>
+
+          <!-- Feedback de Acerto/Erro -->
+          <div id="feedback" class="feedback" hidden role="alert" aria-live="polite"></div>
+
+          <!-- Dica do Enigma -->
+          <div id="hintText" class="hint-text" hidden role="region" aria-live="polite"></div>
+
+          <!-- Barra de Ações (Dica e Próximo) -->
+          <div class="action-footer">
+            <button id="hintButton" type="button" class="btn btn-secondary">
+              💡 Ver dica
+            </button>
+            <button id="nextButton" type="button" class="btn btn-primary" disabled>
+              Próximo desafio <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Tela de Resultados -->
+      <section id="resultScreen" class="screen result-screen" hidden>
+        <div class="result-card">
+          <div id="resultEmoji" class="result-emoji">🏆</div>
+          <h2 id="resultTitle" class="result-title">Mandou muito bem!</h2>
+          <p id="resultDescription" class="result-description">
+            Você demonstrou um ótimo raciocínio.
+          </p>
+
+          <!-- Estatísticas finais -->
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Sua Pontuação</span>
+              <span id="finalScore" class="stat-value">0</span>
+              <span class="stat-sub">pontos</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Acertos</span>
+              <span id="correctCount" class="stat-value">0/8</span>
+              <span class="stat-sub">questões</span>
+            </div>
+            <div class="stat-box highlight">
+              <span class="stat-label">Melhor Recorde</span>
+              <span id="bestScore" class="stat-value">0</span>
+              <span class="stat-sub">pontos</span>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button id="restartButton" type="button" class="btn btn-primary btn-large">
+              <span>Jogar Novamente</span>
+              <span class="btn-arrow" aria-hidden="true">↻</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Rodapé discreto -->
+    <footer class="app-footer">
+      <p>Desafio Mental • LógicaX © 2026</p>
+    </footer>
+  </div>
+</body>
+</html>
