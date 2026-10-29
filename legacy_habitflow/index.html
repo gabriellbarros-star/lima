@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow - Controle de Hábitos & Produtividade</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Folha de Estilos Externa -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200 flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none" aria-live="polite"></div>
+
+    <!-- Main Navigation Header -->
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- App Logo & Title -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+                        <i class="fa-solid fa-check-double text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-sky-600 to-indigo-600 dark:from-sky-400 dark:to-indigo-400 bg-clip-text text-transparent">HabitFlow</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Controle de Hábitos & Produtividade</p>
+                    </div>
+                </div>
+
+                <!-- Dark Mode Toggle & Quick Action -->
+                <div class="flex items-center gap-3">
+                    <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" title="Alternar Tema (Claro/Escuro)">
+                        <i class="fa-solid fa-moon dark:hidden text-lg"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-lg text-amber-400"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Bar -->
+            <nav class="flex space-x-2 sm:space-x-8 overflow-x-auto border-t border-slate-100 dark:border-slate-700/50 py-2" aria-label="Navegação Principal">
+                <button onclick="switchTab('habits')" id="tab-btn-habits" class="tab-btn flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all text-sky-600 bg-sky-50 dark:bg-sky-950/50 dark:text-sky-400">
+                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <span>Rastreador de Hábitos</span>
+                </button>
+                <button onclick="switchTab('pomodoro')" id="tab-btn-pomodoro" class="tab-btn flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-stopwatch text-rose-500"></i>
+                    <span>Timer Pomodoro</span>
+                </button>
+                <button onclick="switchTab('tasks')" id="tab-btn-tasks" class="tab-btn flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-list-check text-emerald-500"></i>
+                    <span>Lista de Tarefas</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= ABA 1: RASTREADOR DE HÁBITOS ================= -->
+        <section id="tab-habits" class="tab-content space-y-6 animate-fade-in">
+            <!-- Cards de Métricas e Resumo -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Hábitos Ativos</span>
+                        <div class="p-2 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 rounded-lg"><i class="fa-solid fa-bullseye"></i></div>
+                    </div>
+                    <p id="total-habits-count" class="text-2xl font-bold mt-2">0</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Concluídos Hoje</span>
+                        <div class="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                    <p id="completed-today-count" class="text-2xl font-bold mt-2">0</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Taxa de Conclusão</span>
+                        <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><i class="fa-solid fa-chart-line"></i></div>
+                    </div>
+                    <p id="completion-rate" class="text-2xl font-bold mt-2">0%</p>
+                </div>
+            </div>
+
+            <!-- Cabeçalho da Lista & Ação -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold">Gerenciador de Hábitos Diários</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Marque seus hábitos diários e mantenha a sua sequência acesa!</p>
+                    </div>
+                    <button onclick="toggleModal('habit-modal')" class="w-full sm:w-auto px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-sky-600/20 active:scale-95">
+                        <i class="fa-solid fa-plus"></i> Novo Hábito
+                    </button>
+                </div>
+
+                <!-- Lista Dinâmica de Hábitos -->
+                <div id="habits-list" class="space-y-3">
+                    <!-- Preenchido via script.js -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABA 2: TIMER POMODORO ================= -->
+        <section id="tab-pomodoro" class="tab-content hidden space-y-6 animate-fade-in">
+            <div class="max-w-md mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200/80 dark:border-slate-700/80 shadow-xl text-center space-y-8">
+                <!-- Seletor de Modo -->
+                <div class="flex p-1.5 bg-slate-100 dark:bg-slate-700/60 rounded-2xl">
+                    <button onclick="setPomodoroMode('work')" id="pomo-mode-work" class="pomo-mode-btn flex-1 py-2 text-sm font-semibold rounded-xl transition-all bg-white dark:bg-slate-800 shadow-sm text-sky-600 dark:text-sky-400">
+                        Foco (25m)
+                    </button>
+                    <button onclick="setPomodoroMode('break')" id="pomo-mode-break" class="pomo-mode-btn flex-1 py-2 text-sm font-semibold rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800">
+                        Pausa Curta (5m)
+                    </button>
+                </div>
+
+                <!-- Display do Círculo do Timer -->
+                <div class="relative w-64 h-64 mx-auto flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="8" class="text-slate-100 dark:text-slate-700" fill="transparent" />
+                        <circle id="pomo-progress" cx="50" cy="50" r="44" stroke="currentColor" stroke-width="8" class="text-sky-500 transition-all duration-1000 ease-linear" fill="transparent" stroke-dasharray="276.46" stroke-dashoffset="0" stroke-linecap="round" />
+                    </svg>
+                    <div class="absolute flex flex-col items-center">
+                        <span id="pomo-timer-display" class="text-5xl font-extrabold tracking-tight font-mono">25:00</span>
+                        <span id="pomo-status-label" class="text-xs uppercase tracking-widest font-semibold mt-2 text-slate-400">Hora de Focar</span>
+                    </div>
+                </div>
+
+                <!-- Botões de Controle -->
+                <div class="flex items-center justify-center gap-4">
+                    <button id="pomo-start-btn" onclick="togglePomodoro()" class="w-16 h-16 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-xl flex items-center justify-center shadow-lg shadow-sky-600/30 transition-all hover:scale-105 active:scale-95" title="Iniciar / Pausar">
+                        <i id="pomo-play-icon" class="fa-solid fa-play ml-1"></i>
+                    </button>
+                    <button onclick="resetPomodoro()" class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 text-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95" title="Reiniciar Timer">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                    <button id="pomo-sound-btn" onclick="toggleSoundNotification()" class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 text-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95" title="Som de Notificação">
+                        <i id="pomo-sound-icon" class="fa-solid fa-volume-high text-sky-500"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABA 3: LISTA DE TAREFAS ================= -->
+        <section id="tab-tasks" class="tab-content hidden space-y-6 animate-fade-in">
+            <!-- Barra de Ações & Filtros -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold">Planejador de Tarefas</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Organize seus afazeres por prioridade e categoria.</p>
+                    </div>
+                    <button onclick="toggleModal('task-modal')" class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-600/20 active:scale-95">
+                        <i class="fa-solid fa-plus"></i> Nova Tarefa
+                    </button>
+                </div>
+
+                <!-- Filtros Dinâmicos -->
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                    <button data-filter="all" onclick="filterTasks('all', this)" class="task-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 font-bold">Todas</button>
+                    <button data-filter="pending" onclick="filterTasks('pending', this)" class="task-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700">Pendentes</button>
+                    <button data-filter="completed" onclick="filterTasks('completed', this)" class="task-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700">Concluídas</button>
+                    <button data-filter="high" onclick="filterTasks('high', this)" class="task-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700">Alta Prioridade</button>
+                </div>
+            </div>
+
+            <!-- Lista Dinâmica de Tarefas -->
+            <div id="tasks-list" class="space-y-3">
+                <!-- Preenchido via script.js -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 py-4 bg-white dark:bg-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p>HabitFlow © 2026 - Controle de Hábitos & Produtividade Diária.</p>
+    </footer>
+
+    <!-- ================= MODAL: ADICIONAR HÁBITO ================= -->
+    <div id="habit-modal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-5 animate-modal">
+            <div class="flex items-center justify-between border-b pb-3 dark:border-slate-700">
+                <h3 class="text-lg font-bold">Adicionar Novo Hábito</h3>
+                <button onclick="toggleModal('habit-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Fechar (Esc)">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <form id="habit-form" onsubmit="handleAddHabit(event)" class="space-y-4">
+                <div>
+                    <label for="habit-title" class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Nome do Hábito</label>
+                    <input type="text" id="habit-title" required placeholder="Ex: Ler 15 páginas, Meditar, Beber Água" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 dark:text-slate-100">
+                </div>
+                <div>
+                    <label for="habit-category" class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Categoria</label>
+                    <select id="habit-category" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 dark:text-slate-100">
+                        <option value="Saúde">Saúde & Bem-Estar</option>
+                        <option value="Estudos">Estudos & Aprendizado</option>
+                        <option value="Produtividade">Produtividade & Trabalho</option>
+                        <option value="Finanças">Finanças</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" onclick="toggleModal('habit-modal')" class="px-4 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-xl bg-sky-600 hover:bg-sky-700 text-white shadow-md shadow-sky-600/20">Salvar Hábito</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: ADICIONAR TAREFA ================= -->
+    <div id="task-modal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-5 animate-modal">
+            <div class="flex items-center justify-between border-b pb-3 dark:border-slate-700">
+                <h3 class="text-lg font-bold">Nova Tarefa</h3>
+                <button onclick="toggleModal('task-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Fechar (Esc)">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <form id="task-form" onsubmit="handleAddTask(event)" class="space-y-4">
+                <div>
+                    <label for="task-title" class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Título da Tarefa</label>
+                    <input type="text" id="task-title" required placeholder="Ex: Entregar relatório de projetos" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-slate-800 dark:text-slate-100">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="task-priority" class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Prioridade</label>
+                        <select id="task-priority" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-slate-800 dark:text-slate-100">
+                            <option value="baixa">Baixa</option>
+                            <option value="media" selected>Média</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="task-tag" class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Tag / Etiqueta</label>
+                        <input type="text" id="task-tag" placeholder="Ex: Trabalho, Estudo" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-slate-800 dark:text-slate-100">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" onclick="toggleModal('task-modal')" class="px-4 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20">Salvar Tarefa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script com a lógica desacoplada da aplicação -->
+    <script src="script.js"></script>
+</body>
+</html>
